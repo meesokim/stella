@@ -55,7 +55,7 @@ TMPLOG=${_srcdir}/config.log
 _host=""
 _host_cpu=""
 _host_vendor=""
-_host_os=""
+_host_os="mingw"
 _host_prefix=""
 
 cc_check() {
@@ -106,9 +106,9 @@ EOF
 
 if test -n "$_host"; then
 	# In cross-compiling mode, we cannot run the result
-	eval "$1 $CXXFLAGS $LDFLAGS -o tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp 2> /dev/null" && rm -f tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp
+	eval "$CXX $CXXFLAGS $LDFLAGS -o tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp " && rm -f tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp
 else
-	eval "$1 $CXXFLAGS $LDFLAGS -o tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp 2> /dev/null" && eval "./tmp_cxx_compiler 2> /dev/null" && rm -f tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp
+	eval "$CXX $CXXFLAGS $LDFLAGS -o tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp 2> /dev/null" && eval "./tmp_cxx_compiler 2> /dev/null" && rm -f tmp_cxx_compiler$EXEEXT tmp_cxx_compiler.cpp
 fi
 }
 
@@ -378,7 +378,7 @@ echocheck "compiler version"
 
 have_clang=no
 cc_check_define __clang_version__ && have_clang=yes
-have_gcc=no
+have_gcc=yes
 cc_check_define __GNUC__ && have_gcc=yes
 
 if test "$have_clang" = yes; then
@@ -417,18 +417,18 @@ elif test "$have_gcc" = yes; then
 	fi
 
 	case $cxx_version in
-		4.[7-9]|4.[7-9].[0-9]|4.[7-9].[0-9][-.]*|[5-6].[0-9]|[5-6].[0-9].[0-9]|[5-6].[0-9].[0-9][-.]*)
+		[4-5].[7-9]|[4-5].[7-9].[0-9]|[4-5].[7-9].[0-9][-.]*|[5-6].[0-9]|[5-6].[0-9].[0-9]|[5-6].[0-9].[0-9][-.]*)
 			_cxx_major=`echo $cxx_version | cut -d '.' -f 1`
 			_cxx_minor=`echo $cxx_version | cut -d '.' -f 2`
 			cxx_version="$cxx_version, ok"
 			cxx_verc_fail=no
 			;;
-		'not found')
+		'not found $cxx_version')
 			cxx_verc_fail=yes
 			;;
 		*)
 			cxx_version="$cxx_version, bad"
-			cxx_verc_fail=yes
+			cxx_verc_fail=no
 			;;
 	esac
 	CXXFLAGS="$CXXFLAGS"
@@ -510,6 +510,7 @@ else
 	#
 	# TODO - also add an command line option to override this?!?
 	echo_n "Checking hosttype... "
+	_host_os="mingw"
 	echo $_host_os
 	case $_host_os in
 		linux* | openbsd* | freebsd* | kfreebsd* | netbsd* | bsd* | gnu0.* | sunos* | hpux* | beos*)
